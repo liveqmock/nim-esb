@@ -1,22 +1,22 @@
 package com.poweruniverse.nim.esb.message;
 
-import com.poweruniverse.nim.bean.ComponentInfo;
-import com.poweruniverse.nim.esb.Component;
+import com.poweruniverse.nim.bean.ApplicationInfo;
+import com.poweruniverse.nim.bean.Applications;
 import com.poweruniverse.nim.interfaces.message.InvokeTargetI;
 
-public class InvokeTarget implements InvokeTargetI{
-	private ComponentInfo application = null;
+public class InvokeApplicationTarget implements InvokeTargetI{
+	private ApplicationInfo application = null;
 	private String wsName = null;
 	private String methodName = null;
 	
-	protected InvokeTarget(String appName,String wsName,String methodName) {
+	public InvokeApplicationTarget(String appName,String wsName,String methodName) {
 		super();
-		this.application = Component.Components.get(appName);
+		this.application = Applications.getApplication(appName);
 		this.wsName = wsName;
 		this.methodName = methodName;
 	}
 
-	public ComponentInfo getApplication() {
+	public ApplicationInfo getApplication() {
 		return application;
 	}
 

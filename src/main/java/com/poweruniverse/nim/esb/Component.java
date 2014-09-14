@@ -3,14 +3,15 @@ package com.poweruniverse.nim.esb;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
+import com.poweruniverse.nim.bean.Applications;
 import com.poweruniverse.nim.bean.ComponentInfo;
+import com.poweruniverse.nim.bean.Components;
 import com.poweruniverse.nim.bean.VariableInfo;
 import com.poweruniverse.nim.interfaces.ComponentI;
 import com.poweruniverse.nim.utils.ComponentServicePublisher;
@@ -28,16 +29,8 @@ public class Component implements ComponentI{
 	private final static String variableConfigFile = "WEB-INF/variable.xml";
 	
 //	public static String current_APP_Path = null;//当前系统运行目录
-	public static String current_APP_name = null;
 //	public static String current_APP_src = null;
 //	public static String current_APP_jdk = null;
-	public final static String NSB_APP_name = "nsb";//总线服务器配置信息
-	public final static String NRS_APP_name = "nrs";//报表服务器配置信息
-	public final static String NFS_APP_name = "nfs";//文档服务器配置信息
-	public final static String NPS_APP_name = "nps";//用户权限服务配置信息
-	public final static String NAS_APP_name = "nas";//用户验证服务配置信息
-	
-	public final static Map<String,ComponentInfo> Components = new HashMap<String,ComponentInfo>();
 	
 	
 	public final static String ModulePath = "modulePath";
@@ -55,7 +48,7 @@ public class Component implements ComponentI{
 		initApplicationConfig(contextPath);
 		initVariableConfig(contextPath);
 		
-		ComponentInfo currentServerInfo = Components.get(this.getComponentName());
+		ComponentInfo currentServerInfo = Components.getComponent(this.getComponentName());
 		
 		//取得当前系统所对应的配置信息
 		if(currentServerInfo==null){
@@ -101,8 +94,8 @@ public class Component implements ComponentI{
 			String serverIp = cfgEl.attributeValue("ip");
 			String serverWebservicePort = cfgEl.attributeValue("webservice-port");
 			
-			current_APP_name = cfgEl.attributeValue("name");
-			if(current_APP_name==null){
+			Applications.current_APP_name = cfgEl.attributeValue("name");
+			if(Applications.current_APP_name==null){
 				System.err.println("在配置文件"+serverConfigFile+"的根节点中未定义name属性！");
 				return;
 			}
@@ -135,7 +128,7 @@ public class Component implements ComponentI{
 						);
 					}
 					//记录此服务组件
-					Components.put(componentName, componentInfo);
+					Components.addComponent(componentName, componentInfo);
 				} catch (ClassNotFoundException e) {
 					System.err.println("配置组件出错：组件启动类("+className+")不存在！");
 					e.printStackTrace();
@@ -146,10 +139,9 @@ public class Component implements ComponentI{
 			}
 			
 			//循环初始化所有组件
-			for(String componentName:Components.keySet()){
-				if(!componentName.equals(getComponentName())){
+			for(ComponentInfo componentInfo:Components.getAllComponent()){
+				if(!componentInfo.getName().equals(getComponentName())){
 					//为非esb组件 调用initial方法
-					ComponentInfo componentInfo = Components.get(componentName);
 					componentInfo.getInstance().initial(contextPath, componentInfo);
 				}
 			}

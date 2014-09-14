@@ -14,8 +14,8 @@ import javax.xml.ws.BindingProvider;
 import net.sf.json.JSONObject;
 
 import com.poweruniverse.nim.bean.Environment;
-import com.poweruniverse.nim.bean.UserInfo;
 import com.poweruniverse.nim.esb.message.InvokeEnvelope;
+import com.poweruniverse.nim.esb.message.InvokeHttpSource;
 import com.poweruniverse.nim.interfaces.message.InvokeEnvelopeI;
 import com.poweruniverse.nim.interfaces.message.ReturnI;
 import com.poweruniverse.nim.message.JsonReturn;
@@ -149,7 +149,7 @@ public class ServiceRouter {
 	 * 检查用户是否具有从此ip发出请求的许可
 	 * @return
 	 */
-	public static boolean hasIPPermission(String ip,UserInfo user){
+	public static boolean hasIPPermission(InvokeHttpSource invokeSource){
 //		//对象相关 需要授权的操作 检查数据权限
 //		JSONObject params = new JSONObject();
 //		params.put("xiTongDH", xiTongDH);

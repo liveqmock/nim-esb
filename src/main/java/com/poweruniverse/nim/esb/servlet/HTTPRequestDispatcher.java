@@ -11,9 +11,12 @@ import net.sf.json.JSONObject;
 
 import com.poweruniverse.nim.bean.Environment;
 import com.poweruniverse.nim.bean.UserInfo;
+import com.poweruniverse.nim.esb.message.InvokeApplicationTarget;
 import com.poweruniverse.nim.esb.message.InvokeEnvelope;
+import com.poweruniverse.nim.esb.message.InvokeHttpSource;
 import com.poweruniverse.nim.esb.utils.ServiceRouter;
 import com.poweruniverse.nim.interfaces.message.InvokeEnvelopeI;
+import com.poweruniverse.nim.interfaces.message.InvokeTargetI;
 import com.poweruniverse.nim.interfaces.message.ReturnI;
 import com.poweruniverse.nim.message.JsonReturn;
 
@@ -51,7 +54,7 @@ public class HTTPRequestDispatcher extends HttpServlet{
 	 * @return
 	 */
 	private ReturnI dispatch(HttpServletRequest req, HttpServletResponse resp){
-		String appName = req.getParameter("application");
+		String targetApplicationName = req.getParameter("application");
 		String wsName = req.getParameter("service");
 		String methodName = req.getParameter("method");
 		ReturnI ret = null;
@@ -71,11 +74,14 @@ public class HTTPRequestDispatcher extends HttpServlet{
 			//客户端ip
 			String ip = getServletClientIp(req);
 			
+			InvokeHttpSource invokeSource = new InvokeHttpSource(ip, user);
+			
 //			ComponentInfo currentApp =  Component.Components.get(Component.current_APP_name);
-			if(ServiceRouter.hasIPPermission(ip, user)){
-				//无论session中 是否有已登录用户信息 均以UserClientInfo形式调用 
+			if(ServiceRouter.hasIPPermission(invokeSource)){
+				//http请求 只能指定目标系统来调用
+				InvokeTargetI invokeTarget = new InvokeApplicationTarget(targetApplicationName,wsName,methodName);
 				//是否需要登录 由webservice方法自己判断
-				InvokeEnvelopeI newEnvelope = new InvokeEnvelope(appName,wsName,methodName,paramterJsonObj,user);
+				InvokeEnvelopeI newEnvelope = new InvokeEnvelope(com.poweruniverse.nim.Component.getName(),invokeSource,invokeTarget,paramterJsonObj);
 				ret = ServiceRouter.invokeService(newEnvelope);
 			}else{
 				ret = new JsonReturn("当前用户("+user.getCode()+")无权限从此ip("+ip+")访问系统！");
