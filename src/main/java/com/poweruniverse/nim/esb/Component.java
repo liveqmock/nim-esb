@@ -178,7 +178,6 @@ public class Component implements ComponentI{
 						variableEl.attributeValue("comments"),
 						variableEl.attributeValue("required")
 					);
-					
 					Variables.put(variableCode, variableInfo);
 				}
 			}
